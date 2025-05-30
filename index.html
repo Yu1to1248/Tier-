@@ -53,10 +53,18 @@
       text-align: center;
       font-weight: bold;
       font-size: 1.2rem;
-      background: #333;
       padding: 10px;
       border-radius: 6px;
+      color: #fff;
     }
+
+    .tier-S { background: #ff3c3c; }
+    .tier-A { background: #ff7b00; }
+    .tier-B { background: #ffc300; color: #000; }
+    .tier-C { background: #2ecc71; }
+    .tier-D { background: #3498db; }
+    .tier-E { background: #9b59b6; }
+    .tier-F { background: #7f8c8d; }
 
     .tier-dropzone {
       flex: 1;
@@ -167,7 +175,7 @@
       const row = document.createElement('div');
       row.className = 'tier-row';
       row.innerHTML = `
-        <div class="tier-label">${tier}</div>
+        <div class="tier-label tier-${tier}">${tier}</div>
         <div class="tier-dropzone" data-tier="${tier}"></div>
       `;
       tierContainer.appendChild(row);
