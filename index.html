@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tier表メーカー</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f0f0f0; }
+    h2 { margin-left: 10px; }
+    .tier { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #ccc; background: white; }
+    .tier-label { width: 40px; font-weight: bold; }
+    .tier-content { flex: 1; display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px; padding: 5px; border: 1px dashed #aaa; background: #fafafa; }
+    .image-item { width: 60px; height: 60px; object-fit: cover; cursor: grab; }
+    #upload { margin: 10px; }
+    #version-switch { margin: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>Tier表メーカー</h2>
+  <input type="file" id="upload" multiple accept="image/*" />
+  <button id="version-switch">スコア版に切り替え</button>
+
+  <div id="tier-container"></div>
+
+  <div id="scoring-panel" class="hidden">
+    <h3>採点項目設定</h3>
+    <div id="criteria-container"></div>
+    <button onclick="addCriterion()">項目追加</button>
+    <h3>Tier点数設定</h3>
+    <textarea id="tier-score-settings" rows="7" cols="40">S:90~100
+A:80~89
+B:70~79
+C:60~69
+D:50~59
+E:40~49
+F:0~39</textarea>
+    <button onclick="calculateScores()">スコア計算して自動配置</button>
+  </div>
+
+  <script>
+    const tiers = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
+    const tierContainer = document.getElementById('tier-container');
+
+    // Tier UI生成
+    tiers.forEach(tier => {
+      const div = document.createElement('div');
+      div.className = 'tier';
+      div.innerHTML = `<div class="tier-label">${tier}</div><div class="tier-content" data-tier="${tier}"></div>`;
+      tierContainer.appendChild(div);
+    });
+
+    // ファイルアップロード
+    document.getElementById('upload').addEventListener('change', e => {
+      const files = e.target.files;
+      for (const file of files) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'image-item';
+        img.draggable = true;
+        addDragEvents(img);
+        tierContainer.querySelector('[data-tier="F"]').appendChild(img);
+      }
+    });
+
+    // ドラッグ＆ドロップ
+    function addDragEvents(img) {
+      img.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', e.target.src);
+        e.dataTransfer.effectAllowed = 'move';
+        e.target.classList.add('dragging');
+      });
+      img.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+    }
+
+    document.querySelectorAll('.tier-content').forEach(tier => {
+      tier.addEventListener('dragover', e => e.preventDefault());
+      tier.addEventListener('drop', e => {
+        e.preventDefault();
+        const src = e.dataTransfer.getData('text/plain');
+        const dragged = document.querySelector(`img[src='${src}']`);
+        if (dragged) tier.appendChild(dragged);
+      });
+    });
+
+    // バージョン切り替え
+    let scoreMode = false;
+    document.getElementById('version-switch').addEventListener('click', () => {
+      scoreMode = !scoreMode;
+      document.getElementById('scoring-panel').classList.toggle('hidden', !scoreMode);
+      document.getElementById('version-switch').textContent = scoreMode ? '通常版に戻す' : 'スコア版に切り替え';
+    });
+
+    // 採点項目追加
+    function addCriterion() {
+      const div = document.createElement('div');
+      div.innerHTML = '<input placeholder="項目名"> <input type="number" placeholder="配点 (例: 30)">';
+      document.getElementById('criteria-container').appendChild(div);
+    }
+
+    // スコア計算
+    function calculateScores() {
+      const criteria = document.querySelectorAll('#criteria-container div');
+      const tierMap = parseTierRanges();
+      const images = document.querySelectorAll('.image-item');
+
+      images.forEach(img => {
+        let total = 0;
+        criteria.forEach(c => {
+          const name = c.querySelector('input:nth-child(1)').value;
+          const weight = Number(c.querySelector('input:nth-child(2)').value);
+          const value = Number(prompt(`${name}の点数を ${img.src.slice(-10)} に入力（${weight}点満点）:`));
+          total += value / weight * 100;
+        });
+        total = total / criteria.length;
+
+        // Tier自動判定
+        for (const [tier, [min, max]] of Object.entries(tierMap)) {
+          if (total >= min && total <= max) {
+            document.querySelector(`[data-tier="${tier}"]`).appendChild(img);
+            break;
+          }
+        }
+      });
+    }
+
+    function parseTierRanges() {
+      const lines = document.getElementById('tier-score-settings').value.split('\n');
+      const map = {};
+      lines.forEach(line => {
+        const [tier, range] = line.split(':');
+        const [min, max] = range.split('~').map(n => Number(n));
+        map[tier.trim()] = [min, max];
+      });
+      return map;
+    }
+  </script>
+</body>
+</html>
