@@ -2,280 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TierMaker</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 0;
-      background: #1e1e1e;
-      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      background: #1f1f1f;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 200px;
     }
+
     header {
       text-align: center;
-      padding: 30px 10px 10px;
-      background: #111;
-      border-bottom: 2px solid #333;
+      padding: 40px 20px 20px;
     }
+
     header h1 {
-      font-size: 2.5em;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #ff4081;
+      font-size: 3rem;
       margin: 0;
+      color: #f0f0f0;
+      letter-spacing: 2px;
     }
+
     header p {
-      margin: 5px 0 15px;
-      font-size: 0.9em;
-      color: #ccc;
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 8px;
     }
-    #controls {
+
+    .tier-container {
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 10px;
-      background: #2a2a2a;
+      flex-direction: column;
+      gap: 8px;
+      width: 95%;
+      max-width: 960px;
     }
-    .tier {
+
+    .tier-row {
       display: flex;
       align-items: center;
-      padding: 0;
-      border-bottom: 1px solid #111;
+      gap: 8px;
     }
+
     .tier-label {
-      width: 100px;
-      font-weight: bold;
-      text-align: center;
-      padding: 20px 10px;
-      color: black;
-    }
-    .tier-content {
-      flex: 1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      min-height: 80px;
-      padding: 10px;
-      background: #000;
-      align-items: center;
-    }
-    .image-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 60px;
-    }
-    .image-item {
       width: 60px;
-      height: 60px;
-      object-fit: cover;
-      cursor: pointer;
-      border: 2px solid #555;
-      border-radius: 6px;
-      transition: transform 0.2s;
-    }
-    .image-item:hover {
-      transform: scale(1.05);
-      border-color: #ff4081;
-    }
-    .delete-btn {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 12px;
-      cursor: pointer;
-      display: none;
-    }
-    .image-wrapper.active .delete-btn {
-      display: block;
-    }
-    #scoring-panel {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
       background: #333;
       padding: 10px;
-      margin: 20px;
-      border-radius: 8px;
-    }
-    .hidden {
-      display: none;
-    }
-    #unclassified-wrapper {
-      margin: 20px;
-    }
-    #unclassified {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 10px;
-      background: #000;
-      min-height: 80px;
-      border: 2px dashed #888;
       border-radius: 6px;
     }
-    button, input[type="file"] {
-      background: #ff4081;
-      color: white;
+
+    .tier-dropzone {
+      flex: 1;
+      min-height: 80px;
+      background: #2a2a2a;
+      border: 2px dashed #555;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .image-item {
+      position: relative;
+      height: 60px;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid #555;
+      background: #000;
+    }
+
+    .image-item img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .delete-btn {
+      display: none;
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+
+    .image-item:hover .delete-btn,
+    .image-item.active .delete-btn {
+      display: block;
+    }
+
+    .unclassified {
+      width: 95%;
+      max-width: 960px;
+      margin-top: 40px;
+      background: #2e2e2e;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .unclassified h2 {
+      margin-top: 0;
+      color: #ccc;
+    }
+
+    .controls {
+      margin: 20px 0;
+    }
+
+    .controls input[type="file"]::file-selector-button {
+      background: #444;
+      color: #fff;
       border: none;
       padding: 8px 14px;
       border-radius: 6px;
       font-size: 14px;
       cursor: pointer;
+      transition: background 0.3s;
     }
-    button:hover {
-      background: #e60073;
+
+    .controls input[type="file"]::file-selector-button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>TierMaker</h1>
-    <p>Upload images and drag them into your custom tiers</p>
+    <h1>Ultimate TierMaker</h1>
+    <p>Drag and drop images into each tier</p>
   </header>
 
-  <div id="controls">
-    <input type="file" id="upload" multiple accept="image/*" />
-    <button id="version-switch">Switch to Scoring Mode</button>
+  <div class="controls">
+    <input type="file" id="imageUpload" multiple accept="image/*">
   </div>
 
-  <div id="tier-container"></div>
+  <div class="tier-container" id="tierContainer"></div>
 
-  <div id="unclassified-wrapper">
-    <h3>Unclassified</h3>
-    <div id="unclassified"></div>
-  </div>
-
-  <div id="scoring-panel" class="hidden">
-    <h3>Scoring Criteria</h3>
-    <div id="criteria-container"></div>
-    <button onclick="addCriterion()">Add Criterion</button>
-    <h3>Tier Score Thresholds</h3>
-    <textarea id="tier-score-settings" rows="7" cols="40">S:90~100
-A:80~89
-B:70~79
-C:60~69
-D:50~59
-E:40~49
-F:0~39</textarea>
-    <button onclick="calculateScores()">Calculate Scores and Auto Assign</button>
+  <div class="unclassified">
+    <h2>Unclassified</h2>
+    <div class="tier-dropzone" id="unclassified"></div>
   </div>
 
   <script>
     const tiers = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
-    const tierColors = {
-      S: '#f87171', A: '#fbbf24', B: '#fde047',
-      C: '#4ade80', D: '#60a5fa', E: '#a78bfa', F: '#f472b6'
-    };
-    const tierContainer = document.getElementById('tier-container');
+    const tierContainer = document.getElementById('tierContainer');
+    const unclassified = document.getElementById('unclassified');
 
     tiers.forEach(tier => {
-      const div = document.createElement('div');
-      div.className = 'tier';
-      div.innerHTML = `<div class="tier-label" style="background:${tierColors[tier]}">Tier ${tier}</div><div class="tier-content" data-tier="${tier}"></div>`;
-      tierContainer.appendChild(div);
+      const row = document.createElement('div');
+      row.className = 'tier-row';
+      row.innerHTML = `
+        <div class="tier-label">${tier}</div>
+        <div class="tier-dropzone" data-tier="${tier}"></div>
+      `;
+      tierContainer.appendChild(row);
     });
 
-    document.getElementById('upload').addEventListener('change', e => {
-      for (const file of e.target.files) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.className = 'image-item';
-        img.draggable = true;
-        const wrapper = createImageWrapper(img);
-        document.getElementById('unclassified').appendChild(wrapper);
-      }
+    document.getElementById('imageUpload').addEventListener('change', function (e) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const img = document.createElement('img');
+          img.src = event.target.result;
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'image-item';
+          wrapper.appendChild(img);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.textContent = '✕';
+          delBtn.onclick = () => wrapper.remove();
+          wrapper.appendChild(delBtn);
+
+          wrapper.addEventListener('click', () => {
+            wrapper.classList.toggle('active');
+          });
+
+          wrapper.setAttribute('draggable', true);
+          wrapper.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', '');
+            wrapper.classList.add('dragging');
+          });
+          wrapper.addEventListener('dragend', () => {
+            wrapper.classList.remove('dragging');
+          });
+
+          unclassified.appendChild(wrapper);
+        };
+        reader.readAsDataURL(file);
+      });
     });
 
-    function createImageWrapper(img) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'image-wrapper';
-      const delBtn = document.createElement('button');
-      delBtn.className = 'delete-btn';
-      delBtn.textContent = '×';
-      delBtn.onclick = () => wrapper.remove();
-      img.addEventListener('click', () => wrapper.classList.toggle('active'));
-      addDragEvents(img);
-      wrapper.appendChild(img);
-      wrapper.appendChild(delBtn);
-      return wrapper;
-    }
-
-    function addDragEvents(img) {
-      img.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', e.target.src);
-        e.target.classList.add('dragging');
+    document.querySelectorAll('.tier-dropzone').forEach(zone => {
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.style.background = '#3a3a3a';
       });
-      img.addEventListener('dragend', e => e.target.classList.remove('dragging'));
-    }
-
-    function enableDropAreas() {
-      document.querySelectorAll('.tier-content, #unclassified').forEach(area => {
-        area.addEventListener('dragover', e => e.preventDefault());
-        area.addEventListener('drop', e => {
-          e.preventDefault();
-          const src = e.dataTransfer.getData('text/plain');
-          const dragged = document.querySelector(`img[src='${src}']`);
-          if (dragged) area.appendChild(dragged.parentElement);
-        });
+      zone.addEventListener('dragleave', () => {
+        zone.style.background = '#2a2a2a';
       });
-    }
-    enableDropAreas();
-
-    let scoreMode = false;
-    document.getElementById('version-switch').addEventListener('click', () => {
-      scoreMode = !scoreMode;
-      document.getElementById('scoring-panel').classList.toggle('hidden', !scoreMode);
-      document.getElementById('version-switch').textContent = scoreMode ? 'Back to Simple Mode' : 'Switch to Scoring Mode';
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.style.background = '#2a2a2a';
+        const dragging = document.querySelector('.dragging');
+        if (dragging) zone.appendChild(dragging);
+      });
     });
-
-    function addCriterion() {
-      const div = document.createElement('div');
-      div.innerHTML = '<input placeholder="Criterion"> <input type="number" placeholder="Max Score">';
-      document.getElementById('criteria-container').appendChild(div);
-    }
-
-    function calculateScores() {
-      const criteria = document.querySelectorAll('#criteria-container div');
-      const tierMap = parseTierRanges();
-      const images = document.querySelectorAll('.image-item');
-
-      images.forEach(img => {
-        let total = 0;
-        criteria.forEach(c => {
-          const name = c.querySelector('input:nth-child(1)').value;
-          const weight = Number(c.querySelector('input:nth-child(2)').value);
-          const value = Number(prompt(`${name} score for ${img.src.slice(-10)} (max ${weight}):`));
-          total += value / weight * 100;
-        });
-        total = total / criteria.length;
-
-        for (const [tier, [min, max]] of Object.entries(tierMap)) {
-          if (total >= min && total <= max) {
-            const wrapper = img.parentElement;
-            document.querySelector(`[data-tier="${tier}"]`).appendChild(wrapper);
-            break;
-          }
-        }
-      });
-    }
-
-    function parseTierRanges() {
-      const lines = document.getElementById('tier-score-settings').value.split('\n');
-      const map = {};
-      lines.forEach(line => {
-        const [tier, range] = line.split(':');
-        const [min, max] = range.split('~').map(n => Number(n));
-        map[tier.trim()] = [min, max];
-      });
-      return map;
-    }
   </script>
 </body>
 </html>
