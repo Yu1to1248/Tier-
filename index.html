@@ -1,19 +1,42 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tier表メーカー</title>
+  <title>TierMaker</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-      background: #222;
+      background: #1e1e1e;
       color: white;
     }
-    h2 {
-      margin: 10px;
+    header {
+      text-align: center;
+      padding: 30px 10px 10px;
+      background: #111;
+      border-bottom: 2px solid #333;
+    }
+    header h1 {
+      font-size: 2.5em;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #ff4081;
+      margin: 0;
+    }
+    header p {
+      margin: 5px 0 15px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    #controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      background: #2a2a2a;
     }
     .tier {
       display: flex;
@@ -35,18 +58,28 @@
       gap: 10px;
       min-height: 80px;
       padding: 10px;
-      background: black;
+      background: #000;
+      align-items: center;
     }
     .image-wrapper {
       position: relative;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
     }
     .image-item {
       width: 60px;
       height: 60px;
       object-fit: cover;
-      cursor: grab;
-      border: 1px solid #444;
+      cursor: pointer;
+      border: 2px solid #555;
+      border-radius: 6px;
+      transition: transform 0.2s;
+    }
+    .image-item:hover {
+      transform: scale(1.05);
+      border-color: #ff4081;
     }
     .delete-btn {
       position: absolute;
@@ -60,20 +93,22 @@
       height: 18px;
       font-size: 12px;
       cursor: pointer;
+      display: none;
     }
-    #upload {
-      margin: 10px;
-    }
-    #version-switch {
-      margin: 10px;
+    .image-wrapper.active .delete-btn {
+      display: block;
     }
     #scoring-panel {
       background: #333;
       padding: 10px;
-      margin: 10px;
+      margin: 20px;
+      border-radius: 8px;
     }
     .hidden {
       display: none;
+    }
+    #unclassified-wrapper {
+      margin: 20px;
     }
     #unclassified {
       display: flex;
@@ -82,26 +117,46 @@
       padding: 10px;
       background: #000;
       min-height: 80px;
-      border: 2px dashed #aaa;
-      margin: 10px;
+      border: 2px dashed #888;
+      border-radius: 6px;
+    }
+    button, input[type="file"] {
+      background: #ff4081;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e60073;
     }
   </style>
 </head>
 <body>
-  <h2>Tier表メーカー</h2>
-  <input type="file" id="upload" multiple accept="image/*" />
-  <button id="version-switch">スコア版に切り替え</button>
+  <header>
+    <h1>TierMaker</h1>
+    <p>Upload images and drag them into your custom tiers</p>
+  </header>
 
-  <h3 style="margin-left:10px">未分類</h3>
-  <div id="unclassified"></div>
+  <div id="controls">
+    <input type="file" id="upload" multiple accept="image/*" />
+    <button id="version-switch">Switch to Scoring Mode</button>
+  </div>
 
   <div id="tier-container"></div>
 
+  <div id="unclassified-wrapper">
+    <h3>Unclassified</h3>
+    <div id="unclassified"></div>
+  </div>
+
   <div id="scoring-panel" class="hidden">
-    <h3>採点項目設定</h3>
+    <h3>Scoring Criteria</h3>
     <div id="criteria-container"></div>
-    <button onclick="addCriterion()">項目追加</button>
-    <h3>Tier点数設定</h3>
+    <button onclick="addCriterion()">Add Criterion</button>
+    <h3>Tier Score Thresholds</h3>
     <textarea id="tier-score-settings" rows="7" cols="40">S:90~100
 A:80~89
 B:70~79
@@ -109,22 +164,16 @@ C:60~69
 D:50~59
 E:40~49
 F:0~39</textarea>
-    <button onclick="calculateScores()">スコア計算して自動配置</button>
+    <button onclick="calculateScores()">Calculate Scores and Auto Assign</button>
   </div>
 
   <script>
     const tiers = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
-    const tierContainer = document.getElementById('tier-container');
-
     const tierColors = {
-      S: '#f88',
-      A: '#fbbf24',
-      B: '#fde047',
-      C: '#86efac',
-      D: '#93c5fd',
-      E: '#a78bfa',
-      F: '#f9a8d4'
+      S: '#f87171', A: '#fbbf24', B: '#fde047',
+      C: '#4ade80', D: '#60a5fa', E: '#a78bfa', F: '#f472b6'
     };
+    const tierContainer = document.getElementById('tier-container');
 
     tiers.forEach(tier => {
       const div = document.createElement('div');
@@ -134,8 +183,7 @@ F:0~39</textarea>
     });
 
     document.getElementById('upload').addEventListener('change', e => {
-      const files = e.target.files;
-      for (const file of files) {
+      for (const file of e.target.files) {
         const img = document.createElement('img');
         img.src = URL.createObjectURL(file);
         img.className = 'image-item';
@@ -152,6 +200,7 @@ F:0~39</textarea>
       delBtn.className = 'delete-btn';
       delBtn.textContent = '×';
       delBtn.onclick = () => wrapper.remove();
+      img.addEventListener('click', () => wrapper.classList.toggle('active'));
       addDragEvents(img);
       wrapper.appendChild(img);
       wrapper.appendChild(delBtn);
@@ -166,29 +215,29 @@ F:0~39</textarea>
       img.addEventListener('dragend', e => e.target.classList.remove('dragging'));
     }
 
-    document.querySelectorAll('.tier-content, #unclassified').forEach(area => {
-      area.addEventListener('dragover', e => e.preventDefault());
-      area.addEventListener('drop', e => {
-        e.preventDefault();
-        const src = e.dataTransfer.getData('text/plain');
-        const dragged = document.querySelector(`img[src='${src}']`);
-        if (dragged) {
-          const wrapper = dragged.parentElement;
-          area.appendChild(wrapper);
-        }
+    function enableDropAreas() {
+      document.querySelectorAll('.tier-content, #unclassified').forEach(area => {
+        area.addEventListener('dragover', e => e.preventDefault());
+        area.addEventListener('drop', e => {
+          e.preventDefault();
+          const src = e.dataTransfer.getData('text/plain');
+          const dragged = document.querySelector(`img[src='${src}']`);
+          if (dragged) area.appendChild(dragged.parentElement);
+        });
       });
-    });
+    }
+    enableDropAreas();
 
     let scoreMode = false;
     document.getElementById('version-switch').addEventListener('click', () => {
       scoreMode = !scoreMode;
       document.getElementById('scoring-panel').classList.toggle('hidden', !scoreMode);
-      document.getElementById('version-switch').textContent = scoreMode ? '通常版に戻す' : 'スコア版に切り替え';
+      document.getElementById('version-switch').textContent = scoreMode ? 'Back to Simple Mode' : 'Switch to Scoring Mode';
     });
 
     function addCriterion() {
       const div = document.createElement('div');
-      div.innerHTML = '<input placeholder="項目名"> <input type="number" placeholder="配点 (例: 30)">';
+      div.innerHTML = '<input placeholder="Criterion"> <input type="number" placeholder="Max Score">';
       document.getElementById('criteria-container').appendChild(div);
     }
 
@@ -202,7 +251,7 @@ F:0~39</textarea>
         criteria.forEach(c => {
           const name = c.querySelector('input:nth-child(1)').value;
           const weight = Number(c.querySelector('input:nth-child(2)').value);
-          const value = Number(prompt(`${name}の点数を ${img.src.slice(-10)} に入力（${weight}点満点）:`));
+          const value = Number(prompt(`${name} score for ${img.src.slice(-10)} (max ${weight}):`));
           total += value / weight * 100;
         });
         total = total / criteria.length;
