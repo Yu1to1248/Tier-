@@ -2,237 +2,183 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TierMaker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tier List</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #1f1f1f;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 200px;
+      font-family: sans-serif;
+      background-color: #222;
+      color: white;
     }
-
-    header {
+    h1 {
       text-align: center;
-      padding: 40px 20px 20px;
+      margin: 20px 0;
+      font-size: 2rem;
+      color: #eee;
     }
-
-    header h1 {
-      font-size: 3rem;
-      margin: 0;
-      color: #f9f9f9;
-      letter-spacing: 2px;
+    #upload {
+      display: block;
+      margin: 0 auto 10px;
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 8px;
     }
-
-    header p {
-      font-size: 1rem;
-      color: #aaa;
-      margin-top: 8px;
-    }
-
-    .tier-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 95%;
-      max-width: 960px;
-    }
-
     .tier-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      border-bottom: 1px solid #444;
+      height: 100px;
+      padding: 5px;
     }
-
     .tier-label {
-      min-width: 60px;
+      width: 100px;
+      font-weight: bold;
+      color: white;
+      padding: 10px;
       text-align: center;
-      font-weight: 900;
-      font-size: 1.4rem;
-      padding: 10px 24px;
-      border-radius: 8px;
-      color: #fff;
-      text-shadow: 2px 2px 0 #000;
-      border: 2px solid #000;
+      border: 3px solid black;
+      box-shadow: 2px 2px 0 #000;
     }
-
-    .tier-S { background: #ff3c3c; }
-    .tier-A { background: #ff7b00; }
-    .tier-B { background: #ffc300; color: #000; text-shadow: 1px 1px 0 #fff; }
-    .tier-C { background: #2ecc71; }
-    .tier-D { background: #3498db; }
-    .tier-E { background: #9b59b6; }
-    .tier-F { background: #7f8c8d; }
-
-    .tier-dropzone {
+    .tier-s   { background-color: #ff7f7f; }
+    .tier-a   { background-color: #ffbb66; }
+    .tier-b   { background-color: #ffff66; color: #222; }
+    .tier-c   { background-color: #66ff66; color: #222; }
+    .tier-d   { background-color: #66b2ff; }
+    .tier-e   { background-color: #9999ff; }
+    .tier-f   { background-color: #ff99ff; }
+    .tier-space {
       flex: 1;
-      min-height: 80px;
-      background: #2a2a2a;
-      border: 2px dashed #555;
-      border-radius: 8px;
       display: flex;
-      align-items: center;
-      justify-content: flex-start;
       flex-wrap: wrap;
-      padding: 8px;
-      gap: 8px;
+      gap: 5px;
+      padding: 5px;
+      min-height: 80px;
     }
-
-    .image-item {
+    .image-wrapper {
       position: relative;
-      height: 60px;
-      aspect-ratio: 1 / 1;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 2px solid #555;
-      background: #000;
+      display: inline-block;
     }
-
-    .image-item img {
-      height: 100%;
-      width: 100%;
-      object-fit: cover;
+    .tier-image {
+      height: 80px;
+      border-radius: 5px;
+      cursor: grab;
     }
-
     .delete-btn {
-      display: none;
       position: absolute;
-      top: 4px;
-      right: 4px;
-      background: rgba(255, 255, 255, 0.8);
-      color: #000;
+      top: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.6);
+      color: white;
       border: none;
-      border-radius: 4px;
-      font-size: 12px;
       padding: 2px 5px;
+      border-radius: 4px;
+      display: none;
       cursor: pointer;
+      font-size: 12px;
     }
-
-    .image-item:hover .delete-btn,
-    .image-item.active .delete-btn {
+    .image-wrapper.selected .delete-btn {
       display: block;
     }
 
-    .unclassified {
-      width: 95%;
-      max-width: 960px;
-      margin-top: 40px;
-      background: #2e2e2e;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .unclassified h2 {
-      margin-top: 0;
-      color: #ccc;
-    }
-
-    .controls {
-      margin: 20px 0;
-    }
-
-    .controls input[type="file"]::file-selector-button {
-      background: #444;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .controls input[type="file"]::file-selector-button:hover {
-      background: #666;
+    /* 未分類 */
+    #unclassified {
+      min-height: 100px;
+      margin: 20px;
+      padding: 10px;
+      border: 2px dashed #666;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Ultimate TierMaker</h1>
-    <p>Drag and drop images into each tier</p>
-  </header>
 
-  <div class="controls">
-    <input type="file" id="imageUpload" multiple accept="image/*">
-  </div>
+  <h1>My Tier List</h1>
+  <input type="file" id="upload" multiple accept="image/*" />
 
-  <div class="tier-container" id="tierContainer"></div>
+  <div class="tier-row"><div class="tier-label tier-s">Tier S</div><div class="tier-space" data-tier="S"></div></div>
+  <div class="tier-row"><div class="tier-label tier-a">Tier A</div><div class="tier-space" data-tier="A"></div></div>
+  <div class="tier-row"><div class="tier-label tier-b">Tier B</div><div class="tier-space" data-tier="B"></div></div>
+  <div class="tier-row"><div class="tier-label tier-c">Tier C</div><div class="tier-space" data-tier="C"></div></div>
+  <div class="tier-row"><div class="tier-label tier-d">Tier D</div><div class="tier-space" data-tier="D"></div></div>
+  <div class="tier-row"><div class="tier-label tier-e">Tier E</div><div class="tier-space" data-tier="E"></div></div>
+  <div class="tier-row"><div class="tier-label tier-f">Tier F</div><div class="tier-space" data-tier="F"></div></div>
 
-  <div class="unclassified">
-    <h2>Unclassified</h2>
-    <div class="tier-dropzone" id="unclassified"></div>
-  </div>
+  <h2 style="text-align:center;margin-top:40px;">Unclassified</h2>
+  <div id="unclassified"></div>
 
   <script>
-    const tiers = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
-    const tierContainer = document.getElementById('tierContainer');
+    const upload = document.getElementById('upload');
     const unclassified = document.getElementById('unclassified');
 
-    tiers.forEach(tier => {
-      const row = document.createElement('div');
-      row.className = 'tier-row';
-      row.innerHTML = `
-        <div class="tier-label tier-${tier}">${tier}</div>
-        <div class="tier-dropzone" data-tier="${tier}"></div>
-      `;
-      tierContainer.appendChild(row);
-    });
-
-    document.getElementById('imageUpload').addEventListener('change', function (e) {
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
+    upload.addEventListener('change', (e) => {
+      const files = e.target.files;
+      for (let file of files) {
         const reader = new FileReader();
-        reader.onload = function (event) {
-          const img = document.createElement('img');
-          img.src = event.target.result;
-
-          const wrapper = document.createElement('div');
-          wrapper.className = 'image-item';
-          wrapper.appendChild(img);
-
-          const delBtn = document.createElement('button');
-          delBtn.className = 'delete-btn';
-          delBtn.textContent = '✕';
-          delBtn.onclick = () => wrapper.remove();
-          wrapper.appendChild(delBtn);
-
-          wrapper.addEventListener('click', () => {
-            wrapper.classList.toggle('active');
-          });
-
-          wrapper.setAttribute('draggable', true);
-          wrapper.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', '');
-            wrapper.classList.add('dragging');
-          });
-          wrapper.addEventListener('dragend', () => {
-            wrapper.classList.remove('dragging');
-          });
-
-          unclassified.appendChild(wrapper);
+        reader.onload = (event) => {
+          const img = createImageElement(event.target.result);
+          unclassified.appendChild(img);
         };
         reader.readAsDataURL(file);
-      });
+      }
     });
 
-    document.querySelectorAll('.tier-dropzone').forEach(zone => {
-      zone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        zone.style.background = '#3a3a3a';
+    function createImageElement(src) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'image-wrapper';
+      wrapper.draggable = true;
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'tier-image';
+
+      const del = document.createElement('button');
+      del.textContent = '×';
+      del.className = 'delete-btn';
+      del.onclick = () => wrapper.remove();
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(del);
+
+      wrapper.addEventListener('click', () => {
+        wrapper.classList.toggle('selected');
       });
-      zone.addEventListener('dragleave', () => {
-        zone.style.background = '#2a2a2a';
+
+      wrapper.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', null);
+        wrapper.classList.add('dragging');
+        window._dragged = wrapper;
       });
-      zone.addEventListener('drop', (e) => {
+
+      wrapper.addEventListener('dragend', () => {
+        wrapper.classList.remove('dragging');
+        window._dragged = null;
+      });
+
+      return wrapper;
+    }
+
+    document.querySelectorAll('.tier-space, #unclassified').forEach(area => {
+      area.addEventListener('dragover', e => {
         e.preventDefault();
-        zone.style.background = '#2a2a2a';
-        const dragging = document.querySelector('.dragging');
-        if (dragging) zone.appendChild(dragging);
+        area.style.backgroundColor = '#333';
+      });
+
+      area.addEventListener('dragleave', e => {
+        area.style.backgroundColor = '';
+      });
+
+      area.addEventListener('drop', e => {
+        e.preventDefault();
+        const wrapper = window._dragged;
+        if (wrapper) area.appendChild(wrapper);
+        area.style.backgroundColor = '';
       });
     });
   </script>
