@@ -6,183 +6,171 @@
   <title>Tier List</title>
   <style>
     body {
-      margin: 0;
-      background-color: #2c2c2c;
-      font-family: sans-serif;
+      background-color: #2e2e2e;
       color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
-
     h1 {
       text-align: center;
       padding: 20px;
       font-size: 2em;
-      color: #fff;
+      color: #e0e0e0;
     }
-
-    #upload-container {
+    .upload-container {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 10px;
     }
-
-    .tier-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      width: 95%;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .tier-row {
-      display: flex;
-      align-items: center;
-      height: 80px;
-      border: 2px solid black;
-    }
-
-    .tier-label {
-      width: 120px;
-      height: 100%;
-      font-weight: bold;
-      font-size: 1.5em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #000;
-    }
-
-    .tier-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      overflow-x: auto;
-    }
-
-    .tier-label.s { background-color: #f77; }
-    .tier-label.a { background-color: #fc8; }
-    .tier-label.b { background-color: #ff8; }
-    .tier-label.c { background-color: #8f8; }
-    .tier-label.d { background-color: #8cf; }
-    .tier-label.e { background-color: #99f; }
-    .tier-label.f { background-color: #f8f; }
-
-    .tier-content img {
-      height: 60px;
-      cursor: grab;
-      border-radius: 8px;
-    }
-
-    .tier-content img.selected {
-      outline: 2px solid white;
-    }
-
-    .delete-btn {
-      position: absolute;
-      background: #444;
+    .upload-button {
+      background-color: #444;
       color: white;
+      padding: 10px 20px;
       border: none;
       border-radius: 5px;
-      padding: 2px 6px;
       cursor: pointer;
-      font-size: 12px;
-      display: none;
     }
-
-    #unclassified {
-      border-top: 4px solid white;
-      margin-top: 20px;
+    .tier {
+      display: flex;
+      align-items: center;
+      margin: 5px 20px;
+      border: 1px solid #444;
+      background-color: black;
+      height: 100px;
+    }
+    .tier-label {
+      width: 150px;
+      font-weight: bold;
+      text-align: center;
       padding: 10px;
-      min-height: 100px;
+      color: black;
+    }
+    .tier.S .tier-label { background-color: #ff7f7f; }
+    .tier.A .tier-label { background-color: #ffbf80; }
+    .tier.B .tier-label { background-color: #ffff80; }
+    .tier.C .tier-label { background-color: #80ff80; }
+    .tier.D .tier-label { background-color: #80cfff; }
+    .tier.E .tier-label { background-color: #9999ff; }
+    .tier.F .tier-label { background-color: #ff99ff; }
+    .tier-images {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+      padding: 10px;
+      flex-grow: 1;
+      align-items: center;
+    }
+    .tier-images img, .unassigned img {
+      max-height: 80px;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: border 0.2s ease;
+    }
+    .tier-images img:hover, .unassigned img:hover {
+      border: 2px solid white;
+    }
+    .unassigned {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
       justify-content: center;
-      background-color: #111;
+    }
+    .unassigned img {
+      max-height: 60px;
+    }
+    .img-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .delete-btn {
+      display: none;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 3px;
+      padding: 2px 5px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .img-wrapper.selected .delete-btn {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <h1>Tier List</h1>
-  <div id="upload-container">
-    <input type="file" id="upload" multiple accept="image/*">
+  <h1>TIER LIST MAKER</h1>
+  <div class="upload-container">
+    <input type="file" id="imageUpload" accept="image/*" multiple>
+    <button class="upload-button" onclick="document.getElementById('imageUpload').click()">Upload Images</button>
   </div>
 
-  <div class="tier-list">
-    <div class="tier-row"><div class="tier-label s">Tier S</div><div class="tier-content" data-tier="S"></div></div>
-    <div class="tier-row"><div class="tier-label a">Tier A</div><div class="tier-content" data-tier="A"></div></div>
-    <div class="tier-row"><div class="tier-label b">Tier B</div><div class="tier-content" data-tier="B"></div></div>
-    <div class="tier-row"><div class="tier-label c">Tier C</div><div class="tier-content" data-tier="C"></div></div>
-    <div class="tier-row"><div class="tier-label d">Tier D</div><div class="tier-content" data-tier="D"></div></div>
-    <div class="tier-row"><div class="tier-label e">Tier E</div><div class="tier-content" data-tier="E"></div></div>
-    <div class="tier-row"><div class="tier-label f">Tier F</div><div class="tier-content" data-tier="F"></div></div>
-  </div>
+  <div class="tier S"><div class="tier-label">Tier S</div><div class="tier-images" data-tier="S"></div></div>
+  <div class="tier A"><div class="tier-label">Tier A</div><div class="tier-images" data-tier="A"></div></div>
+  <div class="tier B"><div class="tier-label">Tier B</div><div class="tier-images" data-tier="B"></div></div>
+  <div class="tier C"><div class="tier-label">Tier C</div><div class="tier-images" data-tier="C"></div></div>
+  <div class="tier D"><div class="tier-label">Tier D</div><div class="tier-images" data-tier="D"></div></div>
+  <div class="tier E"><div class="tier-label">Tier E</div><div class="tier-images" data-tier="E"></div></div>
+  <div class="tier F"><div class="tier-label">Tier F</div><div class="tier-images" data-tier="F"></div></div>
 
-  <h2 style="text-align: center; margin-top: 40px;">Unclassified</h2>
-  <div id="unclassified"></div>
+  <h2 style="text-align:center; color:#ccc;">Unassigned</h2>
+  <div class="unassigned" id="unassigned"></div>
 
   <script>
-    const upload = document.getElementById("upload");
-    const unclassified = document.getElementById("unclassified");
+    const imageUpload = document.getElementById('imageUpload');
+    const unassigned = document.getElementById('unassigned');
 
-    upload.addEventListener("change", (e) => {
-      Array.from(e.target.files).forEach(file => {
+    imageUpload.addEventListener('change', (event) => {
+      Array.from(event.target.files).forEach(file => {
         const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = createDraggableImage(e.target.result);
-          unclassified.appendChild(img);
-        };
+        reader.onload = function(e) {
+          const wrapper = createImageWrapper(e.target.result);
+          unassigned.appendChild(wrapper);
+        }
         reader.readAsDataURL(file);
       });
     });
 
-    function createDraggableImage(src) {
-      const container = document.createElement("div");
-      container.style.position = "relative";
+    function createImageWrapper(src) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'img-wrapper';
+      wrapper.draggable = true;
+      wrapper.innerHTML = `<img src="${src}" draggable="false"><button class="delete-btn">×</button>`;
 
-      const img = document.createElement("img");
-      img.src = src;
-      img.draggable = true;
-
-      const btn = document.createElement("button");
-      btn.textContent = "×";
-      btn.className = "delete-btn";
-      btn.onclick = () => container.remove();
-
-      img.addEventListener("click", () => {
-        const visible = btn.style.display === "block";
-        document.querySelectorAll(".delete-btn").forEach(b => b.style.display = "none");
-        btn.style.display = visible ? "none" : "block";
+      wrapper.addEventListener('click', () => {
+        wrapper.classList.toggle('selected');
+      });
+      wrapper.querySelector('.delete-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        wrapper.remove();
       });
 
-      container.appendChild(img);
-      container.appendChild(btn);
-
-      // Drag and Drop support
-      img.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", src);
-        e.dataTransfer.setDragImage(img, 30, 30);
-        container.classList.add("selected");
+      wrapper.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', src);
+        wrapper.classList.add('dragging');
+      });
+      wrapper.addEventListener('dragend', (e) => {
+        wrapper.classList.remove('dragging');
       });
 
-      img.addEventListener("dragend", () => {
-        container.classList.remove("selected");
-      });
-
-      return container;
+      return wrapper;
     }
 
-    document.querySelectorAll(".tier-content, #unclassified").forEach(zone => {
-      zone.addEventListener("dragover", (e) => e.preventDefault());
-      zone.addEventListener("drop", (e) => {
+    document.querySelectorAll('.tier-images, #unassigned').forEach(container => {
+      container.addEventListener('dragover', (e) => {
         e.preventDefault();
-        const src = e.dataTransfer.getData("text/plain");
-        const img = createDraggableImage(src);
-        e.currentTarget.appendChild(img);
+      });
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const src = e.dataTransfer.getData('text/plain');
+        const dragged = document.querySelector(`.img-wrapper img[src="${src}"]`).parentElement;
+        container.appendChild(dragged);
       });
     });
   </script>
 </body>
 </html>
-
