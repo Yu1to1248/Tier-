@@ -5,21 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tier表メーカー</title>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; background: #f0f0f0; }
-    h2 { margin-left: 10px; }
-    .tier { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #ccc; background: white; }
-    .tier-label { width: 40px; font-weight: bold; }
-    .tier-content { flex: 1; display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px; padding: 5px; border: 1px dashed #aaa; background: #fafafa; }
-    .image-item { width: 60px; height: 60px; object-fit: cover; cursor: grab; }
-    #upload { margin: 10px; }
-    #version-switch { margin: 10px; }
-    .hidden { display: none; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #222;
+      color: white;
+    }
+    h2 {
+      margin: 10px;
+    }
+    .tier {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      border-bottom: 1px solid #111;
+    }
+    .tier-label {
+      width: 100px;
+      font-weight: bold;
+      text-align: center;
+      padding: 20px 10px;
+      color: black;
+    }
+    .tier-content {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 80px;
+      padding: 10px;
+      background: black;
+    }
+    .image-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .image-item {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      cursor: grab;
+      border: 1px solid #444;
+    }
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #upload {
+      margin: 10px;
+    }
+    #version-switch {
+      margin: 10px;
+    }
+    #scoring-panel {
+      background: #333;
+      padding: 10px;
+      margin: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+    #unclassified {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      background: #000;
+      min-height: 80px;
+      border: 2px dashed #aaa;
+      margin: 10px;
+    }
   </style>
 </head>
 <body>
   <h2>Tier表メーカー</h2>
   <input type="file" id="upload" multiple accept="image/*" />
   <button id="version-switch">スコア版に切り替え</button>
+
+  <h3 style="margin-left:10px">未分類</h3>
+  <div id="unclassified"></div>
 
   <div id="tier-container"></div>
 
@@ -42,15 +116,23 @@ F:0~39</textarea>
     const tiers = ['S', 'A', 'B', 'C', 'D', 'E', 'F'];
     const tierContainer = document.getElementById('tier-container');
 
-    // Tier UI生成
+    const tierColors = {
+      S: '#f88',
+      A: '#fbbf24',
+      B: '#fde047',
+      C: '#86efac',
+      D: '#93c5fd',
+      E: '#a78bfa',
+      F: '#f9a8d4'
+    };
+
     tiers.forEach(tier => {
       const div = document.createElement('div');
       div.className = 'tier';
-      div.innerHTML = `<div class="tier-label">${tier}</div><div class="tier-content" data-tier="${tier}"></div>`;
+      div.innerHTML = `<div class="tier-label" style="background:${tierColors[tier]}">Tier ${tier}</div><div class="tier-content" data-tier="${tier}"></div>`;
       tierContainer.appendChild(div);
     });
 
-    // ファイルアップロード
     document.getElementById('upload').addEventListener('change', e => {
       const files = e.target.files;
       for (const file of files) {
@@ -58,32 +140,45 @@ F:0~39</textarea>
         img.src = URL.createObjectURL(file);
         img.className = 'image-item';
         img.draggable = true;
-        addDragEvents(img);
-        tierContainer.querySelector('[data-tier="F"]').appendChild(img);
+        const wrapper = createImageWrapper(img);
+        document.getElementById('unclassified').appendChild(wrapper);
       }
     });
 
-    // ドラッグ＆ドロップ
+    function createImageWrapper(img) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'image-wrapper';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '×';
+      delBtn.onclick = () => wrapper.remove();
+      addDragEvents(img);
+      wrapper.appendChild(img);
+      wrapper.appendChild(delBtn);
+      return wrapper;
+    }
+
     function addDragEvents(img) {
       img.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', e.target.src);
-        e.dataTransfer.effectAllowed = 'move';
         e.target.classList.add('dragging');
       });
       img.addEventListener('dragend', e => e.target.classList.remove('dragging'));
     }
 
-    document.querySelectorAll('.tier-content').forEach(tier => {
-      tier.addEventListener('dragover', e => e.preventDefault());
-      tier.addEventListener('drop', e => {
+    document.querySelectorAll('.tier-content, #unclassified').forEach(area => {
+      area.addEventListener('dragover', e => e.preventDefault());
+      area.addEventListener('drop', e => {
         e.preventDefault();
         const src = e.dataTransfer.getData('text/plain');
         const dragged = document.querySelector(`img[src='${src}']`);
-        if (dragged) tier.appendChild(dragged);
+        if (dragged) {
+          const wrapper = dragged.parentElement;
+          area.appendChild(wrapper);
+        }
       });
     });
 
-    // バージョン切り替え
     let scoreMode = false;
     document.getElementById('version-switch').addEventListener('click', () => {
       scoreMode = !scoreMode;
@@ -91,14 +186,12 @@ F:0~39</textarea>
       document.getElementById('version-switch').textContent = scoreMode ? '通常版に戻す' : 'スコア版に切り替え';
     });
 
-    // 採点項目追加
     function addCriterion() {
       const div = document.createElement('div');
       div.innerHTML = '<input placeholder="項目名"> <input type="number" placeholder="配点 (例: 30)">';
       document.getElementById('criteria-container').appendChild(div);
     }
 
-    // スコア計算
     function calculateScores() {
       const criteria = document.querySelectorAll('#criteria-container div');
       const tierMap = parseTierRanges();
@@ -114,10 +207,10 @@ F:0~39</textarea>
         });
         total = total / criteria.length;
 
-        // Tier自動判定
         for (const [tier, [min, max]] of Object.entries(tierMap)) {
           if (total >= min && total <= max) {
-            document.querySelector(`[data-tier="${tier}"]`).appendChild(img);
+            const wrapper = img.parentElement;
+            document.querySelector(`[data-tier="${tier}"]`).appendChild(wrapper);
             break;
           }
         }
